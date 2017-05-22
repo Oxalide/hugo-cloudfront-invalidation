@@ -17,7 +17,7 @@ print "Purge CloudFront from Hugo New Or Modified Content\n"
 # parse distribution ID from argument
 parser = argparse.ArgumentParser(description='Push invalidation request to CloudFront')
 parser.add_argument('distributionId', metavar='ID', type=str, help='Target distribution ID')
-parser.add_argument('--stsrole', dest='stsrole', type=str, default='0', help='sum the integers (default: find the max)')
+parser.add_argument('--stsrole', dest='stsrole', type=str, default='0', help='ARN for sts:assmerole')
 args = parser.parse_args()
 print "DistributionID: "+ args.distributionId +"\n"
 
