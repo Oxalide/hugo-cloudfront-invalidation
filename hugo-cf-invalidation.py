@@ -64,6 +64,12 @@ if len(urls) == 0:
 
 # if there are change
 else:
+
+    # also purge this objects if there is at leat a change on the site
+    urls.append("/index.html")
+    urls.append("/index.xml")
+    urls.append("/sitemap.xml")
+
     print "Objects to invalidate:"
     for url in urls:
         print "\t"+ url
