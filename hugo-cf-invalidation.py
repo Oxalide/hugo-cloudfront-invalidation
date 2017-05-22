@@ -17,6 +17,7 @@ print "Purge CloudFront from Hugo New Or Modified Content\n"
 # parse distribution ID from argument
 parser = argparse.ArgumentParser(description='Push invalidation request to CloudFront')
 parser.add_argument('distributionId', metavar='ID', type=str, help='Target distribution ID')
+parser.add_argument('--stsrole', dest='stsrole', type=str, default='0', help='sum the integers (default: find the max)')
 args = parser.parse_args()
 print "DistributionID: "+ args.distributionId +"\n"
 
@@ -70,7 +71,31 @@ else:
 
     # connect to AWS and push invalidation request
     try:
-        client = boto3.client('cloudfront')
+
+        # use sts:assumerole if provided
+        if args.stsrole != '0':
+
+            # assume role
+            print "Use sts:assumerole => "+ args.stsrole + "\n"
+            sts_client = boto3.client('sts')
+            assumedRoleObject = sts_client.assume_role(
+                RoleArn=args.stsrole,
+                RoleSessionName="AssumeRoleHugoCFInvalidation"
+            )
+
+            # use new credentials to connect to cloudfront
+            client = boto3.client(
+                'cloudfront',
+                aws_access_key_id=assumedRoleObject['Credentials']['AccessKeyId'],
+                aws_secret_access_key=assumedRoleObject['Credentials']['SecretAccessKey'],
+                aws_session_token=assumedRoleObject['Credentials']['SessionToken'],
+            )
+
+        else:
+            # use "default" credentials to connect to cloudfront
+            client = boto3.client('cloudfront')
+
+        # push invalidation request to cloudfront
         response = client.create_invalidation(
             DistributionId=args.distributionId,
             InvalidationBatch={
@@ -82,7 +107,7 @@ else:
             }
         )
 
-        print "Status: "+ response['Invalidation']['Status'] +"\n"
+        print "Invalidation status: "+ response['Invalidation']['Status'] +"\n"
         exit(0)
 
     except ClientError as e:
