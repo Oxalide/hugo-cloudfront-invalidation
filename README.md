@@ -33,9 +33,11 @@ To use this script, simply go in the root directory of your local copy of Hugo:
 
 To use this script in your Gitlab Pipeline remember to provide AWS credential.
 
-## Gitlab CI
+## Use sts:assumerole
 
+In case where you need to use an AssumeRole to push invalidation request to CloudFront, you need to provide the ARN:
 
+    git diff --name-only origin/master | python hugo-cf-invalidation.py YOURDISTRIBUTIONID --stsrole arn:aws:iam::ACCOUNTID:role/YourAwesomeRole
 
 # Copyright and license
 
