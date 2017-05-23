@@ -18,8 +18,12 @@ print "Purge CloudFront from Hugo New Or Modified Content\n"
 parser = argparse.ArgumentParser(description='Push invalidation request to CloudFront')
 parser.add_argument('distributionId', metavar='ID', type=str, help='Target distribution ID')
 parser.add_argument('--stsrole', dest='stsrole', type=str, default='0', help='ARN for sts:assmerole')
+parser.add_argument('--prefix', dest='urlprefix', type=str, default='', help='Prefix URL with a string, ex: for /draft/index.html, prefix need to be "/draft"')
+
 args = parser.parse_args()
 print "DistributionID: "+ args.distributionId +"\n"
+
+urlprefix = args.urlprefix if (args.urlprefix != "" ) else ""
 
 # for each line from stdin, rewrite the correct path regarding the final URL
 for line in sys.stdin:
@@ -45,17 +49,17 @@ for line in sys.stdin:
     theme = re.compile('^(themes/hyde)(.*)+')
 
     if content.match(line):
-        urls.append("/post/"+ re.search("^(content/post/)(.*)(\.md)$",line).group(2) +"/index.html")
+        urls.append(urlprefix +"/post/"+ re.search("^(content/post/)(.*)(\.md)$",line).group(2) +"/index.html")
 
     if static.match(line):
-        urls.append("/post/"+
+        urls.append(urlprefix +"/post/"+
             re.search("^(static/post/)(.*)/(.*)$",line).group(2)
             +"/"+
             re.search("^(static/post/)(.*)/(.*)$",line).group(3)
         )
 
     if theme.match(line):
-        urls.append("/"+ re.search("^(themes/hyde/)(.*)$",line).group(2))
+        urls.append(urlprefix +"/"+ re.search("^(themes/hyde/)(.*)$",line).group(2))
 
 # no change
 if len(urls) == 0:
@@ -66,9 +70,9 @@ if len(urls) == 0:
 else:
 
     # also purge this objects if there is at leat a change on the site
-    urls.append("/index.html")
-    urls.append("/index.xml")
-    urls.append("/sitemap.xml")
+    urls.append(urlprefix +"/index.html")
+    urls.append(urlprefix +"/index.xml")
+    urls.append(urlprefix +"/sitemap.xml")
 
     print "Objects to invalidate:"
     for url in urls:
