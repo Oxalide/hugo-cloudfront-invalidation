@@ -70,6 +70,7 @@ if len(urls) == 0:
 else:
 
     # also purge this objects if there is at leat a change on the site
+    urls.append(urlprefix +"/")
     urls.append(urlprefix +"/index.html")
     urls.append(urlprefix +"/index.xml")
     urls.append(urlprefix +"/sitemap.xml")
