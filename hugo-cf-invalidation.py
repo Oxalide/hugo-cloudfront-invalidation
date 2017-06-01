@@ -49,6 +49,7 @@ for line in sys.stdin:
     theme = re.compile('^(themes/hyde)(.*)+')
 
     if content.match(line):
+        urls.append(urlprefix +"/post/"+ re.search("^(content/post/)(.*)(\.md)$",line).group(2) +"/")
         urls.append(urlprefix +"/post/"+ re.search("^(content/post/)(.*)(\.md)$",line).group(2) +"/index.html")
 
     if static.match(line):
